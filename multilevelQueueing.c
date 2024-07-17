@@ -65,13 +65,13 @@ void simulateMultiLevelQueueing(Processes *process, int n) {
     for (int i = 0; i < systemCount; i++) {
         totalTurnaroundTime += systemQueue[i].turnaround_time;
         totalWaitingTime += systemQueue[i].waiting_time;
-        printf("%d\t%s\t%d\t%d\t%d\t%d\t%d\n", systemQueue[i].pid, systemQueue[i].type, systemQueue[i].arrival_time, systemQueue[i].burst_time, systemQueue[i].completion_time, systemQueue[i].turnaround_time, systemQueue[i].waiting_time);
+        printf("%d\t%s\t%d\t%d\t\t%d\t\t%d\t\t\t%d\n", systemQueue[i].pid, systemQueue[i].type, systemQueue[i].arrival_time, systemQueue[i].burst_time, systemQueue[i].completion_time, systemQueue[i].turnaround_time, systemQueue[i].waiting_time);
     }
 
     for (int i = 0; i < userCount; i++) {
         totalTurnaroundTime += userQueue[i].turnaround_time;
         totalWaitingTime += userQueue[i].waiting_time;
-        printf("%d\t%s\t%d\t%d\t%d\t%d\t%d\n", userQueue[i].pid, userQueue[i].type, userQueue[i].arrival_time, userQueue[i].burst_time, userQueue[i].completion_time, userQueue[i].turnaround_time, userQueue[i].waiting_time);
+        printf("%d\t%s\t%d\t%d\t\t%d\t\t%d\t\t\t%d\n", userQueue[i].pid, userQueue[i].type, userQueue[i].arrival_time, userQueue[i].burst_time, userQueue[i].completion_time, userQueue[i].turnaround_time, userQueue[i].waiting_time);
     }
 
     int totalProcesses = systemCount + userCount;

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define MAX_TASKS 10
 
@@ -78,8 +79,9 @@ int main() {
         utilization += (double)tasks[i].execution_time / tasks[i].period;
     }
 
-    if (utilization > 1.0) {
-        printf("Error: The set of tasks is not schedulable under RMS (Utilization > 100%%).\n");
+    double threshold = n * (pow(2, 1.0 / n) - 1);
+    if (utilization > threshold) {
+        printf("Error: The set of tasks is not schedulable under RMS (Utilization > %f%%).\n", threshold * 100);
         return 1;
     }
 
