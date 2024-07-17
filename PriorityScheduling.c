@@ -1,14 +1,40 @@
 #include <stdio.h>
+#include <limits.h>
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 void priorityNonPreemptive(int processes[], int n, int burst_time[], int priority[], int arrival_time[]) {
-    int waiting_time[n], turnaround_time[n];
-    waiting_time[0] = MAX(0, arrival_time[0]);
-    for (int i = 1; i < n; i++) {
-        waiting_time[i] = MAX(0, waiting_time[i-1] + burst_time[i-1] - arrival_time[i]);
-    }
+    int waiting_time[n], turnaround_time[n], completion_time[n], is_completed[n];
+    int current_time = 0, completed = 0;
+
+    // Initialize arrays
     for (int i = 0; i < n; i++) {
-        turnaround_time[i] = waiting_time[i] + burst_time[i];
+        is_completed[i] = 0;
+    }
+
+    while (completed != n) {
+        int selected_process = -1;
+        int highest_priority = INT_MAX;
+
+        // Find the process with the highest priority that has arrived
+        for (int i = 0; i < n; i++) {
+            if (arrival_time[i] <= current_time && is_completed[i] == 0) {
+                if (priority[i] < highest_priority) {
+                    highest_priority = priority[i];
+                    selected_process = i;
+                }
+            }
+        }
+
+        if (selected_process != -1) {
+            current_time += burst_time[selected_process];
+            completion_time[selected_process] = current_time;
+            turnaround_time[selected_process] = completion_time[selected_process] - arrival_time[selected_process];
+            waiting_time[selected_process] = turnaround_time[selected_process] - burst_time[selected_process];
+            is_completed[selected_process] = 1;
+            completed++;
+        } else {
+            current_time++; // No process is ready yet, move to the next time unit
+        }
     }
 
     printf("\nNon-Preemptive Priority Scheduling:\n");
@@ -18,34 +44,45 @@ void priorityNonPreemptive(int processes[], int n, int burst_time[], int priorit
     }
 }
 
+
 void priorityPreemptive(int processes[], int n, int burst_time[], int priority[], int arrival_time[]) {
-    int remaining_time[n], waiting_time[n], turnaround_time[n], completed = 0, current_time = 0;
+    int remaining_time[n], waiting_time[n], turnaround_time[n], completion_time[n];
+    int completed = 0, current_time = 0;
+    int is_completed[n];
+
     for (int i = 0; i < n; i++) {
         remaining_time[i] = burst_time[i];
-        waiting_time[i] = 0;
+        is_completed[i] = 0;
     }
+
     while (completed != n) {
         int selected_process = -1;
-        int lowest_priority = 1000000; // higher the value lower the priority
+        int highest_priority = INT_MAX;
+
+        // Find the process with the highest priority that has arrived and not completed
         for (int i = 0; i < n; i++) {
-            if (remaining_time[i] > 0 && priority[i] < lowest_priority && current_time >= arrival_time[i]) {
-                lowest_priority = priority[i];
-                selected_process = i;
+            if (arrival_time[i] <= current_time && is_completed[i] == 0) {
+                if (priority[i] < highest_priority) {
+                    highest_priority = priority[i];
+                    selected_process = i;
+                }
             }
         }
-        if (selected_process == -1) {
+
+        if (selected_process != -1) {
+            remaining_time[selected_process]--;
             current_time++;
-            continue;
+
+            if (remaining_time[selected_process] == 0) {
+                completion_time[selected_process] = current_time;
+                turnaround_time[selected_process] = completion_time[selected_process] - arrival_time[selected_process];
+                waiting_time[selected_process] = turnaround_time[selected_process] - burst_time[selected_process];
+                is_completed[selected_process] = 1;
+                completed++;
+            }
+        } else {
+            current_time++; // No process is ready yet, move to the next time unit
         }
-        remaining_time[selected_process]--;
-        current_time++;
-        if (remaining_time[selected_process] == 0) {
-            completed++;
-            turnaround_time[selected_process] = current_time - arrival_time[selected_process];
-        }
-    }
-    for (int i = 0; i < n; i++) {
-        waiting_time[i] = turnaround_time[i] - burst_time[i];
     }
 
     printf("\nPreemptive Priority Scheduling:\n");
@@ -54,6 +91,7 @@ void priorityPreemptive(int processes[], int n, int burst_time[], int priority[]
         printf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", processes[i], arrival_time[i], burst_time[i], priority[i], waiting_time[i], turnaround_time[i]);
     }
 }
+
 
 int main() {
     int n;
